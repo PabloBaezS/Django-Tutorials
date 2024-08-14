@@ -1,0 +1,22 @@
+{% extends 'pages/base.html' %}
+{% block title %} {{title}} {% endblock %}
+{% block header_title %} {{subtitle}} {% endblock %}
+{% block content %}
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4 col-lg-3 mb-2">
+        <div class="card">
+            <img class="card-img-top img-card"
+                 src="https://nayemdevs.com/wp-content/uploads/2020/03/default-product-image.png">
+            <div class="card-body text-center">
+                <a class="btn bg-primary text-white"
+                   href="{% url 'show' id=product.id %}">{{ product.name }}</a>
+                <p class="mt-2" style="{% if product.price > 100 %}color: red;{% endif %}">
+                    ${{ product.price|floatformat:2 }}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
