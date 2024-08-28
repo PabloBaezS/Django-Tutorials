@@ -1,0 +1,43 @@
+{% extends 'pages/base.html' %}
+{% block title %} {{title}} {% endblock %}
+{% block header_title %} {{subtitle}} {% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <h1>Available products</h1>
+            <ul>
+                {% for key, product in products.items %}
+                <li>
+                    Id: {{ key }} -
+                    Name: {{ product.name }} -
+                    Price: {{ product.price }} -
+                    <form action="{% url 'cart_add' key %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Add product to cart</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <h1>Products in cart</h1>
+            <ul>
+                {% for key, product in cart_products.items %}
+                <li>
+                    Id: {{ key }} -
+                    Name: {{ product.name }} -
+                    Price: {{ product.price }}
+                </li>
+                {% endfor %}
+            </ul>
+            <form action="{% url 'cart_removeAll' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Remove all products from cart</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
