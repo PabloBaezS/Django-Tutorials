@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, request
 from django.shortcuts import get_object_or_404  # here by default
 from django.urls import reverse
 from django.views import View
@@ -128,3 +128,83 @@ class ProductListView(ListView):
 
 class ProductCreateSuccessView(TemplateView):
     template_name = 'products/products.html'
+
+class CartView(View):
+    template_name = 'cart/index.html'
+
+    def get(self, request):
+        # Simulated database for products
+        products = {}
+        products[121] = {'name': 'Tv samsung', 'price': '1000'}
+        products[11] = {'name': 'Iphone', 'price': '2000'}
+
+        # Get cart products from session
+        cart_products = {}
+        cart_product_data = request.session.get('cart_product_data', {})
+
+        for key, product in products.items():
+            if str(key) in cart_product_data.keys():
+                cart_products[key] = product
+
+        # Prepare data for the view
+        view_data = {
+            'title': 'Cart - Online Store',
+            'subtitle': 'Shopping Cart',
+            'products': products,
+            'cart_products': cart_products
+        }
+
+        return render(request, self.template_name, view_data)
+
+    def post(self, request, product_id):
+        # Get cart products from session and add the new product
+        cart_product_data = request.session.get('cart_product_data', {})
+        cart_product_data[product_id] = product_id
+        request.session['cart_product_data'] = cart_product_data
+
+        return redirect('cart_index')
+
+
+class CartRemoveAllView(View):
+    def post(self, request):
+        # Remove all products from cart in session
+        if 'cart_product_data' in request.session:
+            del request.session['cart_product_data']
+
+        return redirect('cart_index')
+
+
+def ImageViewFactory(image_storage):
+    class ImageView(View):
+        template_name = 'images/index.html'
+
+        def get(self, request):
+            image_url = request.session.get('image_url', '')
+            return render(request, self.template_name, {'image_url': image_url})
+
+        def post(self, request):
+            image_url = image_storage.store(request)
+            request.session['image_url'] = image_url
+            return redirect('image_index')
+
+    return ImageView
+
+
+# Without dependency inversion
+
+from django.shortcuts import render, redirect
+from django.views import View
+from .utils import ImageLocalStorage
+
+class ImageViewNoDI(View):
+    template_name = 'imagesnotdi/index.html'
+
+    def get(self, request):
+        image_url = request.session.get('image_url', '')
+        return render(request, self.template_name, {'image_url': image_url})
+
+    def post(self, request):
+        image_storage = ImageLocalStorage()
+        image_url = image_storage.store(request)
+        request.session['image_url'] = image_url
+        return redirect('imagenodi_index')
