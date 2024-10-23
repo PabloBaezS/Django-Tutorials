@@ -1,0 +1,7 @@
+Django>=4.2,<5.0
+djangorestframework>=3.12
+djangorestframework-simplejwt>=5.0
+mysqlclient>=2.0
+Pillow>=8.0
+gunicorn>=20.0  # Recomendado para despliegue
+python-dotenv>=0.19  # Recomendado para manejar variables de entorno
